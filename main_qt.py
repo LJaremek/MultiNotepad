@@ -14,6 +14,9 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowTitle("MultiNotepad")
 
+        self.main_notepad_index: int = 0
+        self.notepads_content: list[str] = []
+
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout()
         self.main_widget.setLayout(self.main_layout)
@@ -80,7 +83,12 @@ class MainWindow(QMainWindow):
     def _create_text_box(self) -> None:
         """READY"""
         self.text_box = QPlainTextEdit()
+        self.text_box.textChanged.connect(self._text_change)
+        self.text_box.setDisabled(True)
         self.main_layout.addWidget(self.text_box)
+
+    def _text_change(self) -> None:
+        ...  # interact when text change
 
     def _delete_notepad_button(self, button: QPushButton) -> None:
         """READY"""
@@ -93,13 +101,29 @@ class MainWindow(QMainWindow):
             delete_message.Yes | delete_message.No
         )
 
-        if response == delete_message.Yes:
-            notepads_count = self.notepads_bar_layout.count()
-            for i in range(notepads_count):
-                tmp_button = self.notepads_bar_layout.itemAt(i).widget()
-                if tmp_button is button:
-                    button.setParent(None)
-                    return
+        if response == delete_message.No:
+            return
+
+        notepads_count = self.notepads_bar_layout.count()
+        for b_index in range(notepads_count):
+            tmp_button = self.notepads_bar_layout.itemAt(b_index).widget()
+            if tmp_button is button:
+                del self.notepads_content[b_index]
+                button.setParent(None)
+
+                if b_index == len(self.notepads_content) != 0:
+                    self.main_notepad_index -= 1
+
+                    last_button = self.notepads_bar_layout. \
+                        itemAt(b_index-1).widget()
+
+                    self._change_notepad(last_button, False)
+
+                elif b_index == 0 == len(self.notepads_content):
+                    self.text_box.setPlainText("")
+                    self.text_box.setDisabled(True)
+
+                return
 
     def _create_notepad_button_menu(self, button: QPushButton) -> QMenu:
         """READY"""
@@ -120,31 +144,36 @@ class MainWindow(QMainWindow):
         return notepad_button_menu
 
     def _create_notepads_bar(self) -> None:
-        self.notepads_bar_widget = QWidget()
-        self.notepads_bar_layout = QHBoxLayout()
-        self.notepads_bar_widget.setLayout(self.notepads_bar_layout)
+        self.bottom_bar_widget = QWidget()
+        self.bottom_bar_layout = QHBoxLayout()
+        self.bottom_bar_widget.setLayout(self.bottom_bar_layout)
 
         self.new_notepad_button = QPushButton("+")
         self.new_notepad_button.clicked.connect(self._new_notepad_button)
         self.new_notepad_button.setMaximumWidth(
             self.new_notepad_button.height()
         )
-        self.notepads_bar_layout.addWidget(
+        self.bottom_bar_layout.addWidget(
             self.new_notepad_button, alignment=QtCore.Qt.AlignLeft
         )
 
-        self.notepads_bar_layout.addSpacerItem(
+        self.notepads_bar_widget = QWidget()
+        self.notepads_bar_layout = QHBoxLayout()
+        self.notepads_bar_widget.setLayout(self.notepads_bar_layout)
+        self.bottom_bar_layout.addWidget(self.notepads_bar_widget)
+
+        self.bottom_bar_layout.addSpacerItem(
             QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
         )
 
-        self._create_new_notepad_button("NewNotepad")
+        self._create_notepad_button("NewNotepad")
 
         # self.notepads_bar_layout.count()
         # self.notepads_bar_layout.itemAt(0).widget().text()
         # type(self.notepads_bar_layout.itemAt(2))
         # the last - PyQt5.QtWidgets.QSpacerItem
 
-        self.main_layout.addWidget(self.notepads_bar_widget)
+        self.main_layout.addWidget(self.bottom_bar_widget)
 
     def _file_open(self) -> None:
         ...
@@ -163,19 +192,72 @@ class MainWindow(QMainWindow):
         notepad_button_menu = self._create_notepad_button_menu(button)
         notepad_button_menu.exec_(button.mapToGlobal(point))
 
-    def _create_new_notepad_button(self, button_name: str) -> None:
-
+    def _create_notepad_button(self, button_name: str) -> None:
         new_button = QPushButton(button_name)
+        new_button.clicked.connect(lambda: self._change_notepad(new_button))
         new_button.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         new_button.customContextMenuRequested.connect(
             lambda: self._handle_right_click(button=new_button)
         )
 
         self.notepads_bar_layout.insertWidget(
-            self.notepads_bar_layout.count() - 1,
+            self.notepads_bar_layout.count(),
             new_button,
             alignment=QtCore.Qt.AlignLeft
         )
+
+        if not self.text_box.isEnabled():
+            self.text_box.setEnabled(True)
+
+        self.notepads_content.append("")
+
+        self._update_notepad_buttons(
+            self.notepads_bar_layout.count() - 1,
+            new_button=True
+            )
+
+    def _change_notepad(
+            self,
+            button: QPushButton,
+            save_old: bool = True
+            ) -> None:
+
+        if save_old:
+            self.notepads_content[self.main_notepad_index] = \
+                self.text_box.toPlainText()
+
+        notepads_count = self.notepads_bar_layout.count()
+        for index in range(notepads_count):
+            tmp_widget = self.notepads_bar_layout.itemAt(index).widget()
+            if tmp_widget is button:
+                tmp_widget.setStyleSheet("background-color : lightgray")
+                self.text_box.setPlainText(self.notepads_content[index])
+                self.main_notepad_index = index
+            elif type(tmp_widget) == QPushButton:
+                tmp_widget.setStyleSheet("")
+
+    def _update_notepad_buttons(
+            self,
+            button_to_be_painted: int,
+            new_button: bool = False
+            ) -> None:
+        """
+        Update buttons colors and text content.
+        """
+
+        self.notepads_content[self.main_notepad_index] = \
+            self.text_box.toPlainText()
+
+        notepads_count = self.notepads_bar_layout.count()
+        for index in range(notepads_count):
+            tmp_widget = self.notepads_bar_layout.itemAt(index).widget()
+            if type(tmp_widget) == QPushButton:
+                if index == button_to_be_painted:
+                    tmp_widget.setStyleSheet("background-color : lightgray")
+                    self.text_box.setPlainText(self.notepads_content[index])
+                    self.main_notepad_index = index
+                else:
+                    tmp_widget.setStyleSheet("")
 
     def _rename_notepad_button(self, button: QPushButton) -> None:
         new_file_name, done = QInputDialog.getText(
@@ -196,7 +278,7 @@ class MainWindow(QMainWindow):
         )
 
         if done and file_name != "":
-            self._create_new_notepad_button(file_name)
+            self._create_notepad_button(file_name)
 
 
 def main():
