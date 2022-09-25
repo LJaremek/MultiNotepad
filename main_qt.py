@@ -3,19 +3,19 @@ from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSizePolicy
 from PyQt5.QtWidgets import QPlainTextEdit, QPushButton, QSpacerItem
 from PyQt5.QtWidgets import QInputDialog, QMessageBox
 from PyQt5.QtWidgets import QMenu, QAction
+# from PyQt5.QtWidgets import QFileDialog
 from PyQt5 import QtCore
 
 Q_SIZE_POLICY_MAX = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+Q_SIZE_POLICY_MIN = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs) -> None:
-        """READY"""
         super(MainWindow, self).__init__(*args, **kwargs)
-        self.setWindowTitle("MultiNotepad")
-
         self.main_notepad_index: int = 0
         self.notepads_content: list[str] = []
+        self.project_name: str = "New MN"
 
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout()
@@ -24,6 +24,8 @@ class MainWindow(QMainWindow):
         self._create_text_box()
         self._create_menu_bar()
         self._create_notepads_bar()
+
+        self.setWindowTitle(f"{self.project_name} - MultiNotepad")
 
         self.setCentralWidget(self.main_widget)
 
@@ -88,6 +90,7 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.text_box)
 
     def _text_change(self) -> None:
+        self.setWindowTitle(f"{self.project_name} - MultiNotepad*")
         ...  # interact when text change
 
     def _delete_notepad_button(self, button: QPushButton) -> None:
@@ -146,6 +149,7 @@ class MainWindow(QMainWindow):
     def _create_notepads_bar(self) -> None:
         self.bottom_bar_widget = QWidget()
         self.bottom_bar_layout = QHBoxLayout()
+        self.bottom_bar_widget.setSizePolicy(Q_SIZE_POLICY_MIN)
         self.bottom_bar_widget.setLayout(self.bottom_bar_layout)
 
         self.new_notepad_button = QPushButton("+")
@@ -176,7 +180,7 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.bottom_bar_widget)
 
     def _file_open(self) -> None:
-        ...
+        ...  # QFileDialog.getExistingDirectory(self, "Select file to open", )
 
     def _file_save(self) -> None:
         ...
@@ -285,6 +289,7 @@ def main():
     app = QApplication([])
 
     window = MainWindow()
+    window.setFixedSize(900, 700)
     window.show()
 
     app.exec_()
