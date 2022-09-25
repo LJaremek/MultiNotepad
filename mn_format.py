@@ -13,10 +13,23 @@ which are notepads in  MultiNotepad.
 import zipfile
 
 
+class FlatFile:
+    def __init__(
+            self,
+            file_name: str,
+            file_format: str,
+            file_content: str
+            ) -> None:
+
+        self.file_name = file_name
+        self.file_format = file_format
+        self.file_content = file_content
+
+
 def open_mn_file(
         path: str,
         encoding: str = "utf-8"
-        ) -> dict[str]:
+        ) -> dict[str, FlatFile]:
     """
     Opening mn file.
     Input:
@@ -24,8 +37,8 @@ def open_mn_file(
      * encoding: str - encoding of flat files in mn file. Default: utf-8
 
     Output:
-    * files data: dict[str, str] - dict with files data, key is file name,
-                                   value is file content.
+    * files data: dict[str, FlatFile] - dict with files data, key is file name,
+                                      value is file content.
 
     Example:
         my_data = open_mn_file("Documents/work.mn")
@@ -38,7 +51,11 @@ def open_mn_file(
         for file_zip_name in archive.filelist:
             file_data = archive.read(file_zip_name).decode(encoding)
 
-            results[file_zip_name] = file_data
+            file_name = ".".join(file_zip_name.filename.split(".")[:-1])
+            file_format = file_zip_name.filename.split(".")[-1]
+            file = FlatFile(file_name, file_format, file_data)
+
+            results[file_name] = file
 
     return results
 
