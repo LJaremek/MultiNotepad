@@ -97,7 +97,13 @@ class MainWindow(QMainWindow):
         ...  # interact when text change
 
     def _delete_notepad_button(self, button: QPushButton) -> None:
-        """READY"""
+        """
+        Delete 'notepad' button,
+        update 'notepad' buttons colors and plain text.
+
+        Input:
+         * button: QPushButton - button to delete
+        """
         delete_message = QMessageBox()
 
         response = delete_message.question(
@@ -117,7 +123,23 @@ class MainWindow(QMainWindow):
                 del self.notepads_content[b_index]
                 button.setParent(None)
 
-                if 0 != b_index <= len(self.notepads_content) != 0:
+                first_button_not_the_only: bool = (
+                    b_index == 0 != len(self.notepads_content)
+                )
+
+                the_only_button: bool = (
+                    b_index == 0 == len(self.notepads_content)
+                )
+
+                not_first_button_not_the_only: bool = (
+                    0 != b_index <= len(self.notepads_content) != 0
+                )
+
+                not_first_button_the_only: bool = (
+                    b_index != 0 == len(self.notepads_content)
+                )
+
+                if not_first_button_not_the_only:
                     self.main_notepad_index -= 1
 
                     new_main_button = self.notepads_bar_layout. \
@@ -125,7 +147,8 @@ class MainWindow(QMainWindow):
 
                     self._change_notepad(new_main_button, False)
 
-                elif b_index != 0 == len(self.notepads_content):
+                elif not_first_button_the_only:
+                    print("[!] NOT_FIRST_BUTTON_THE_ONLY")  # never used?
                     self.main_notepad_index += 1
 
                     new_main_button = self.notepads_bar_layout. \
@@ -133,11 +156,11 @@ class MainWindow(QMainWindow):
 
                     self._change_notepad(new_main_button, False)
 
-                elif b_index == 0 == len(self.notepads_content):
+                elif the_only_button:
                     self.text_box.setPlainText("")
                     self.text_box.setDisabled(True)
 
-                elif b_index == 0:
+                elif first_button_not_the_only:
                     self.main_notepad_index = 0
 
                     new_main_button = self.notepads_bar_layout. \
@@ -146,7 +169,7 @@ class MainWindow(QMainWindow):
                     self._change_notepad(new_main_button, False)
 
                 else:
-                    print("LIPA")
+                    print("[!] A NEW OPTION")  # exists?
 
                 return
 
