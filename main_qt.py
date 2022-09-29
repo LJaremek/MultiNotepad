@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSizePolicy
-from PyQt5.QtWidgets import QPlainTextEdit, QPushButton, QSpacerItem
+from PyQt5.QtWidgets import QPushButton, QSpacerItem
 from PyQt5.QtWidgets import QInputDialog, QMessageBox
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5 import QtCore
 
 from mn_format import open_mn_file
+from ui.TextWidgets import TextField
 
 Q_SIZE_POLICY_MAX = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 Q_SIZE_POLICY_MIN = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
@@ -24,7 +25,9 @@ class MainWindow(QMainWindow):
         self.main_layout = QVBoxLayout()
         self.main_widget.setLayout(self.main_layout)
 
-        self._create_text_box()
+        self.text_box = TextField(self._text_change)
+        self.main_layout.addWidget(self.text_box)
+
         self._create_menu_bar()
         self._create_notepads_bar()
 
@@ -84,13 +87,6 @@ class MainWindow(QMainWindow):
         select_action.setStatusTip("Select all text")
         select_action.triggered.connect(self.text_box.selectAll)
         self.menu_bar_edit.addAction(select_action)
-
-    def _create_text_box(self) -> None:
-        """READY"""
-        self.text_box = QPlainTextEdit()
-        self.text_box.textChanged.connect(self._text_change)
-        self.text_box.setDisabled(True)
-        self.main_layout.addWidget(self.text_box)
 
     def _text_change(self) -> None:
         self.setWindowTitle(f"{self.project_name} - MultiNotepad*")
