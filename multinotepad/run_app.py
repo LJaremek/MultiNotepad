@@ -1,14 +1,11 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
-from PyQt5.QtWidgets import QVBoxLayout, QSizePolicy
+from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QAction
 
-from .mn_format import open_mn_file
-from .ui.TextWidgets import TextField
 from .ui.NotepadWidgets import NotepadsBar
-from .ui.MenuBar import wear_menubar
-
-Q_SIZE_POLICY_MAX = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-Q_SIZE_POLICY_MIN = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+from .ui.TextWidgets import TextField
+from .mn_format import open_mn_file
 
 
 class MainWindow(QMainWindow):
@@ -28,11 +25,37 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.notepads_bar)
 
         self.menu_bar = self.menuBar()
-        wear_menubar(self)
+        self._set_up_menubar()
 
         self.setWindowTitle(f"{self.project_name} - MultiNotepad")
-
         self.setCentralWidget(self.main_widget)
+
+    def _set_up_menubar(self) -> None:
+        menus: dict[str, tuple[tuple]] = {
+            "&File": (
+                ("Open file...", "Open file", self._file_open),
+                ("Save", "Save current page", self._file_save),
+                ("Save As...", "Save current page as", self._file_saveas)
+            ),
+            "&Edit": (
+                ("Undo", "Undo last change", self.text_box.undo),
+                ("Redo", "Redo last change", self.text_box.redo),
+                ("Cut", "Cut selected text", self.text_box.cut),
+                ("Copy", "Copy selected text", self.text_box.copy),
+                ("Paste", "Paste from clipboard", self.text_box.paste),
+                ("Select all", "Select all text", self.text_box.selectAll)
+            )
+        }
+
+        for menu_name in menus:
+            menu_tmp = self.menu_bar.addMenu(menu_name)
+            actions = menus[menu_name]
+            for action in actions:
+                action_tmp = QAction(action[0], self)
+                action_tmp.setStatusTip(action[1])
+                action_tmp.triggered.connect(action[2])
+
+                menu_tmp.addAction(action_tmp)
 
     def _text_change(self) -> None:
         self.setWindowTitle(f"{self.project_name} - MultiNotepad*")
