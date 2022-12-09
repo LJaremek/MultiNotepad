@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QAction
 
+from .small_tools.text_tools import get_file_name_from_path
 from .mn_format import open_mn_file, save_mn_file
 from .ui.NotepadWidgets import NotepadsBar
 from .ui.TextWidgets import TextField
@@ -64,9 +65,6 @@ class MainWindow(QMainWindow):
 
                 menu_tmp.addAction(action_tmp)
 
-    def _get_project_nam_from_path(self, path: str) -> str:
-        return path.replace("\\", "/").split("/")[-1].split(".")[0]
-
     def _text_change(
             self,
             star: bool = True,
@@ -103,7 +101,7 @@ class MainWindow(QMainWindow):
 
             first_button = False
 
-        self.project_name = self._get_project_nam_from_path(path)
+        self.project_name = get_file_name_from_path(path)
         self._text_change(False, False)
 
         self._tmp_notepads_content = self.notepads_bar.get_notepads_content()
@@ -127,7 +125,7 @@ class MainWindow(QMainWindow):
 
         save_mn_file(path, prepared_notepads_content)
 
-        self.project_name = self._get_project_nam_from_path(path)
+        self.project_name = get_file_name_from_path(path)
         self._text_change(False, False)
 
 
