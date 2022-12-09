@@ -243,6 +243,17 @@ class NotepadsBar(QWidget):
     def get_notepad_button(self, index: int) -> QPushButton:
         return self.notepads_bar_layout.itemAt(index).widget()
 
+    def get_notepads_content(self) -> dict[str, str]:
+        content = {}
+
+        for index in range(self.get_notepads_count()):
+            notepad_name = self.get_notepad_button(index).text()
+
+            notepad_content = self._notepads_content[index]
+            content[notepad_name] = notepad_content
+
+        return content
+
     def clear_bar(self) -> None:
         notepads_count = self.get_notepads_count()
         for _ in range(notepads_count):

@@ -7,7 +7,7 @@ You can simply open mn file with Python zipfile library
 or 7zip program (open source free software).
 
 mn file contains flat files (as txt, json, py),
-which are notepads in  MultiNotepad.
+which are notepads in MultiNotepad.
 """
 
 import zipfile
