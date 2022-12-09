@@ -1,4 +1,4 @@
-from ..small_tools.text_tools import get_file_name_from_path
+from ..tools.text_tools import get_file_name_from_path
 
 
 def test_path_1():

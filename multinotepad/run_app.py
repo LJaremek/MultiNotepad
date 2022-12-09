@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QAction
 
-from .small_tools.text_tools import get_file_name_from_path
+from .tools.text_tools import get_file_name_from_path
 from .mn_format import open_mn_file, save_mn_file
 from .ui.NotepadWidgets import NotepadsBar
 from .ui.TextWidgets import TextField
@@ -84,6 +84,9 @@ class MainWindow(QMainWindow):
         path, _ = QFileDialog.getOpenFileName(
             self, "Select file to open", "", "*.mn"
             )
+
+        if path == "":
+            return
 
         files_data = open_mn_file(path)
 

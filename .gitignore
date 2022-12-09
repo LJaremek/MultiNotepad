@@ -1,2 +1,5 @@
+__pycache__/
 multinotepad/__pycache__/
-multinotepad/ui/__pycache__
+multinotepad/tools/__pycache__/
+multinotepad/ui/__pycache__/
+multinotepad/unit_tests/__pycache__/
