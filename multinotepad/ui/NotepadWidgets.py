@@ -38,13 +38,16 @@ class NotepadsBar(QWidget):
 
         self.create_notepad_button("NewNotepad")
 
-    def _new_notepad_button(self) -> None:
-
-        file_name, done = QInputDialog.getText(
+    def _get_file_name(self) -> tuple[str, bool]:
+        return QInputDialog.getText(
             self,
             "Creating new notepad",
             "Notepad name:"
-        )
+            )
+
+    def _new_notepad_button(self) -> None:
+
+        file_name, done = self._get_file_name()
 
         if done and file_name != "":
             self.create_notepad_button(file_name, "")
