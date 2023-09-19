@@ -23,13 +23,13 @@ def app(qtbot) -> MainWindow:
     return app
 
 
-def test_empty_start_app(app: MainWindow) -> bool:
+def test_empty_start_app(app: MainWindow) -> None:
     assert app._tmp_notepads_content == {}
     assert app.notepads_bar.notepads_bar_layout.count() == 1
     assert app.notepads_bar._notepads_content[0] == ""
 
 
-def test_new_notepad_1(app: MainWindow, qtbot) -> bool:
+def test_new_notepad_1(app: MainWindow, qtbot) -> None:
     """
     1. Start app
     2. Press "+" (new button)
@@ -52,7 +52,7 @@ def test_new_notepad_1(app: MainWindow, qtbot) -> bool:
     assert app.notepads_bar._notepads_content[1] == ""
 
 
-def test_new_notepad_2(app: MainWindow, qtbot) -> bool:
+def test_new_notepad_2(app: MainWindow, qtbot) -> None:
     """
     1. Start app
     2. Write text "aAa"
@@ -79,7 +79,7 @@ def test_new_notepad_2(app: MainWindow, qtbot) -> bool:
     assert app.notepads_bar._notepads_content[1] == ""
 
 
-def test_new_notepad_3(app: MainWindow, qtbot) -> bool:
+def test_new_notepad_3(app: MainWindow, qtbot) -> None:
     """
     1. Start app
     2. Press "+" (new button)
