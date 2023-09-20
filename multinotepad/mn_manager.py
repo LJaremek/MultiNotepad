@@ -1,8 +1,19 @@
+from .mn_format import open_mn_file, save_mn_file
+
+
 class Notepad:
-    def __init__(self, name: str, content: str, index: int) -> None:
+    def __init__(
+            self,
+            name: str,
+            content: str,
+            index: int,
+            format: str
+            ) -> None:
+
         self.name = name
         self.content = content
         self.index = index
+        self.format = format
 
     def __str__(self) -> str:
         return f"Notepad Class. I:{self.index} N:{self.name} C:{self.content}"
@@ -22,11 +33,17 @@ class MultiNotepadManager:
     def size(self) -> int:
         return len(self._content)
 
-    def add_notepad(self, name: str, content: str, index: int = None) -> None:
+    def add_notepad(
+            self,
+            name: str,
+            content: str,
+            index: int = None,
+            format: str = "txt"
+            ) -> None:
         if index is None:
             index = len(self._content)
 
-        self._content.insert(index, Notepad(name, content, None))
+        self._content.insert(index, Notepad(name, content, None, format))
         self._update_notepads_index()
 
     def remove_notepad(self, name: str = None, index: int = None) -> bool:
@@ -141,4 +158,30 @@ class MultiNotepadManager:
             return
 
         notepad = self._content.pop(index)
-        self.add_notepad(notepad.name, notepad.content, new_index)
+        self.add_notepad(
+            notepad.name, notepad.content, new_index, notepad.format
+            )
+
+    def load_mn_file(self, path: str) -> None:
+        self._content = []
+        mn_data = open_mn_file(path)
+
+        for file_name in mn_data:
+            file = mn_data[file_name]
+
+            self._content.append(
+                Notepad(
+                    name=file.file_name,
+                    content=file.file_content,
+                    index=-1,
+                    format=file.file_format
+                    )
+                )
+
+    def save_mn_file(self, path) -> None:
+        data = {}
+
+        for notepad in self._content:
+            data[notepad.name+"."+notepad.format] = notepad.content
+
+        save_mn_file(path, data)
