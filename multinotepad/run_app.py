@@ -5,11 +5,17 @@ from PyQt5.QtWidgets import QAction
 
 from .tools.text_tools import get_file_name_from_path
 from .mn_format import open_mn_file, save_mn_file
+from .mn_manager import MultiNotepadManager
 from .ui.NotepadWidgets import NotepadsBar
 from .ui.TextWidgets import TextField
 
 
 class TemporaryBlocker:
+    main_notepad_index = 0
+
+    def get_notepad_content(self, index: int = 0) -> str:
+        return ""
+
     def get_notepads_content(self) -> dict:
         return {}
 
@@ -22,6 +28,8 @@ class MainWindow(QMainWindow):
         self.file_path: str = None
 
         self._tmp_notepads_content: dict[str, str] = {}
+        self._mn_manager = MultiNotepadManager()
+        self._mn_manager.add_notepad("NewNotepad", "")
 
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout()
@@ -31,7 +39,7 @@ class MainWindow(QMainWindow):
         self.text_box = TextField(self._text_change_action)
         self.main_layout.addWidget(self.text_box)
 
-        self.notepads_bar = NotepadsBar(self.text_box)
+        self.notepads_bar = NotepadsBar(self.text_box, self._mn_manager)
         self.main_layout.addWidget(self.notepads_bar)
 
         self.menu_bar = self.menuBar()
@@ -67,20 +75,33 @@ class MainWindow(QMainWindow):
 
                 menu_tmp.addAction(action_tmp)
 
+    def _get_current_notepad_index(self) -> int:
+        return self.notepads_bar.main_notepad_index
+
     def _text_change_action(
             self,
             star: bool = True,
             check_contensts: bool = True
             ) -> None:
 
-        if check_contensts and self._tmp_notepads_content == \
-                self.notepads_bar.get_notepads_content():
-            return
+        print(self._mn_manager._content)
+
+        notepad_index = self._get_current_notepad_index()
+        notepad_content = self.text_box.toPlainText()
+
+        self._mn_manager.update_notepad_content(
+            new_content=notepad_content,
+            index=notepad_index
+            )
+
+        # if check_contensts and self._tmp_notepads_content == \
+        #         self.notepads_bar.get_notepads_content():
+        #     return
 
         self.setWindowTitle(
             f"{self.project_name} - MultiNotepad" + ("*" if star else "")
             )
-        self._tmp_notepads_content = self.notepads_bar.get_notepads_content()
+        # self._tmp_notepads_content = self.notepads_bar.get_notepads_content()
 
     def _file_open(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
@@ -140,6 +161,7 @@ class MainWindow(QMainWindow):
 
         if path == "":
             return
+        self.file_path = path
 
         prepared_notepads_content = {
             key + ".txt": value

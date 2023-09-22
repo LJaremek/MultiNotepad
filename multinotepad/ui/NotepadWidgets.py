@@ -3,13 +3,22 @@ from PyQt5.QtWidgets import QWidget, QInputDialog, QAction, QMenu, QMessageBox
 from PyQt5 import QtCore
 
 from .TextWidgets import TextField
+from ..mn_manager import MultiNotepadManager
 
 Q_SIZE_POLICY_MIN = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
 
 class NotepadsBar(QWidget):
-    def __init__(self, text_box: TextField, *args, **kwargs) -> None:
+    def __init__(
+            self,
+            text_box: TextField,
+            mn_manager: MultiNotepadManager,
+            *args,
+            **kwargs
+            ) -> None:
+
         super(NotepadsBar, self).__init__(*args, **kwargs)
+        self._mn_manager = mn_manager
         self.main_notepad_index: int = 0
         self._notepads_content: list[str] = []
         self.text_box = text_box
@@ -72,7 +81,8 @@ class NotepadsBar(QWidget):
         if not self.text_box.isEnabled():
             self.text_box.setEnabled(True)
 
-        self._notepads_content.append(text)
+        # self._notepads_content.append(text)
+        self._mn_manager.add_notepad(button_name, text)
 
         if first_button:
             clear_plain_text = False
@@ -133,23 +143,28 @@ class NotepadsBar(QWidget):
         for b_index in range(notepads_count):
             tmp_button = self.notepads_bar_layout.itemAt(b_index).widget()
             if tmp_button is button:
-                del self._notepads_content[b_index]
+                # del self._notepads_content[b_index]
+                self._mn_manager.remove_notepad(index=b_index)
                 button.setParent(None)
 
                 first_button_not_the_only: bool = (
-                    b_index == 0 != len(self._notepads_content)
+                    # b_index == 0 != len(self._notepads_content)
+                    b_index == 0 != self._mn_manager.size()
                 )
 
                 the_only_button: bool = (
-                    b_index == 0 == len(self._notepads_content)
+                    # b_index == 0 == len(self._notepads_content)
+                    b_index == 0 == self._mn_manager.size()
                 )
 
                 not_first_button_not_the_only: bool = (
-                    0 != b_index <= len(self._notepads_content) != 0
+                    # 0 != b_index <= len(self._notepads_content) != 0
+                    0 != b_index <= self._mn_manager.size() != 0
                 )
 
                 not_first_button_the_only: bool = (
-                    b_index != 0 == len(self._notepads_content)
+                    # b_index != 0 == len(self._notepads_content)
+                    b_index != 0 == self._mn_manager.size()
                 )
 
                 if not_first_button_not_the_only:
@@ -193,15 +208,24 @@ class NotepadsBar(QWidget):
             ) -> None:
 
         if save_old:
-            self._notepads_content[self.main_notepad_index] = \
-                self.text_box.toPlainText()
+            # self._notepads_content[self.main_notepad_index] = \
+            #     self.text_box.toPlainText()
+            self._mn_manager.update_notepad_content(
+                self.text_box.toPlainText(),
+                index=self.main_notepad_index
+            )
 
         notepads_count = self.notepads_bar_layout.count()
         for index in range(notepads_count):
             tmp_widget = self.notepads_bar_layout.itemAt(index).widget()
             if tmp_widget is button:
                 tmp_widget.setStyleSheet("background-color : lightgray")
-                self.text_box.setPlainText(self._notepads_content[index])
+                # self.text_box.setPlainText(self._notepads_content[index])
+
+                self.text_box.setPlainText(
+                    self._mn_manager.get_notepad(index).content
+                    )
+
                 self.main_notepad_index = index
             elif type(tmp_widget) == QPushButton:
                 tmp_widget.setStyleSheet("")
@@ -216,8 +240,12 @@ class NotepadsBar(QWidget):
         """
 
         if clear_plain_text:
-            self._notepads_content[self.main_notepad_index] = \
-                self.text_box.toPlainText()
+            # self._notepads_content[self.main_notepad_index] = \
+            #     self.text_box.toPlainText()
+            self._mn_manager.update_notepad_content(
+                self.text_box.toPlainText(),
+                self.main_notepad_index
+            )
 
         notepads_count = self.notepads_bar_layout.count()
         for index in range(notepads_count):
@@ -225,7 +253,10 @@ class NotepadsBar(QWidget):
             if type(tmp_widget) == QPushButton:
                 if index == button_to_be_painted:
                     tmp_widget.setStyleSheet("background-color : lightgray")
-                    self.text_box.setPlainText(self._notepads_content[index])
+                    # self.text_box.setPlainText(self._notepads_content[index])
+                    self.text_box.setPlainText(
+                        self._mn_manager.get_notepad(index).content
+                    )
                     self.main_notepad_index = index
                 else:
                     tmp_widget.setStyleSheet("")
@@ -246,13 +277,18 @@ class NotepadsBar(QWidget):
     def get_notepad_button(self, index: int) -> QPushButton:
         return self.notepads_bar_layout.itemAt(index).widget()
 
+    def get_notepad_content(self, index: int) -> str:
+        # return self._notepads_content[index]
+        return self._mn_manager.get_notepad(index).content
+
     def get_notepads_content(self) -> dict[str, str]:
         content = {}
 
         for index in range(self.get_notepads_count()):
             notepad_name = self.get_notepad_button(index).text()
 
-            notepad_content = self._notepads_content[index]
+            # notepad_content = self._notepads_content[index]
+            notepad_content = self._mn_manager.get_notepad(index).content
             content[notepad_name] = notepad_content
 
         return content
@@ -262,4 +298,5 @@ class NotepadsBar(QWidget):
         for _ in range(notepads_count):
             b_to_delete = self.get_notepad_button(0)
             b_to_delete.setParent(None)
-        self._notepads_content = []
+        # self._notepads_content = []
+        self._mn_manager.clear()

@@ -33,6 +33,9 @@ class MultiNotepadManager:
     def size(self) -> int:
         return len(self._content)
 
+    def clear(self) -> None:
+        self._content = []
+
     def add_notepad(
             self,
             name: str,
@@ -163,7 +166,7 @@ class MultiNotepadManager:
             )
 
     def load_mn_file(self, path: str) -> None:
-        self._content = []
+        self.clear()
         mn_data = open_mn_file(path)
 
         for file_name in mn_data:
