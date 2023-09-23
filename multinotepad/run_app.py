@@ -57,12 +57,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"{self.project_name} - MultiNotepad")
         self.setCentralWidget(self.main_widget)
 
-    def __del__(self) -> None:
-        del self._mn_manager
-        del self.notepads_bar
-        del self.text_box
-        del self.main_layout
-
     def _set_up_menubar(self) -> None:
         menus: dict[str, tuple[tuple]] = {
             "&File": (

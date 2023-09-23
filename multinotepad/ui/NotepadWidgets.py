@@ -46,11 +46,6 @@ class NotepadsBar(QWidget):
 
         self.create_notepad_button("NewNotepad")
 
-    def __del__(self) -> None:
-        del self._mn_manager
-        del self.text_box
-        del self._main_layout
-
     def _get_file_name(self) -> tuple[str, bool]:
         return QInputDialog.getText(
             self,
