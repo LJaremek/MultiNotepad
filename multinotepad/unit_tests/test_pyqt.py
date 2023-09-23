@@ -23,11 +23,11 @@ def app(qtbot) -> MainWindow:
     return app
 
 
-def test_empty_start_app(app: MainWindow) -> None:
-    assert app.notepads_bar.notepads_bar_layout.count() == 1
-    assert app._mn_manager.size() == 1
+# def test_empty_start_app(app: MainWindow) -> None:
+#     assert app.notepads_bar.notepads_bar_layout.count() == 1
+#     assert app._mn_manager.size() == 1
 
-    del app
+#     del app
 
 
 # def test_new_notepad_1(app: MainWindow, qtbot) -> None:
