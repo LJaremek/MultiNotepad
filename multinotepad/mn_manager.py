@@ -34,6 +34,7 @@ class MultiNotepadManager:
         return len(self._content)
 
     def clear(self) -> None:
+        print("[!] CLEARING")
         self._content = []
 
     def add_notepad(
@@ -43,6 +44,7 @@ class MultiNotepadManager:
             index: int = None,
             format: str = "txt"
             ) -> None:
+
         if index is None:
             index = len(self._content)
 
@@ -155,7 +157,6 @@ class MultiNotepadManager:
                     break
             if not loop_broken:
                 raise Exception(f"Notepad with name '{name}' does not exists!")
-        print(self._content)
 
         if new_index == index:
             return

@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QAction
 
 from .tools.text_tools import get_file_name_from_path
-from .mn_format import open_mn_file, save_mn_file
+from .mn_format import open_mn_file
 from .mn_manager import MultiNotepadManager
 from .ui.NotepadWidgets import NotepadsBar
 from .ui.TextWidgets import TextField
@@ -22,18 +22,27 @@ class TemporaryBlocker:
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs) -> None:
-        """READY"""
         super(MainWindow, self).__init__(*args, **kwargs)
         self.project_name: str = "my notes"
         self.file_path: str = None
 
-        self._tmp_notepads_content: dict[str, str] = {}
         self._mn_manager = MultiNotepadManager()
-        self._mn_manager.add_notepad("NewNotepad", "")
 
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout()
         self.main_widget.setLayout(self.main_layout)
+
+        # >>>>>> DELETE AFTER TESTING
+        from PyQt5.QtWidgets import QPushButton
+        from PyQt5 import QtCore
+        b = QPushButton("Check")
+        b.clicked.connect(lambda: print("CHECK:", self._mn_manager._content))
+        b.setStyleSheet("background-color: red; color: white;")
+        self.main_layout.addWidget(
+            b,
+            alignment=QtCore.Qt.AlignLeft
+            )
+        # <<<<<< DELETE AFTER TESTING
 
         self.notepads_bar: NotepadsBar = TemporaryBlocker()
         self.text_box = TextField(self._text_change_action)
@@ -84,8 +93,6 @@ class MainWindow(QMainWindow):
             check_contensts: bool = True
             ) -> None:
 
-        print(self._mn_manager._content)
-
         notepad_index = self._get_current_notepad_index()
         notepad_content = self.text_box.toPlainText()
 
@@ -101,7 +108,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(
             f"{self.project_name} - MultiNotepad" + ("*" if star else "")
             )
-        # self._tmp_notepads_content = self.notepads_bar.get_notepads_content()
 
     def _file_open(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
@@ -130,8 +136,6 @@ class MainWindow(QMainWindow):
         self.project_name = get_file_name_from_path(path)
         self._text_change_action(False, False)
 
-        self._tmp_notepads_content = self.notepads_bar.get_notepads_content()
-
     def _file_save(self) -> None:
 
         if self.file_path is None:
@@ -143,13 +147,7 @@ class MainWindow(QMainWindow):
                 return
             self.file_path = path
 
-        prepared_notepads_content = {
-            key + ".txt": value
-            for (key, value)
-            in self.notepads_bar.get_notepads_content().items()
-            }
-
-        save_mn_file(self.file_path, prepared_notepads_content)
+        self._mn_manager.save_mn_file(self.file_path)
 
         self.project_name = get_file_name_from_path(self.file_path)
         self._text_change_action(False, False)
@@ -163,13 +161,7 @@ class MainWindow(QMainWindow):
             return
         self.file_path = path
 
-        prepared_notepads_content = {
-            key + ".txt": value
-            for (key, value)
-            in self.notepads_bar.get_notepads_content().items()
-            }
-
-        save_mn_file(path, prepared_notepads_content)
+        self._mn_manager.save_mn_file(self.file_path)
 
         self.project_name = get_file_name_from_path(path)
         self._text_change_action(False, False)

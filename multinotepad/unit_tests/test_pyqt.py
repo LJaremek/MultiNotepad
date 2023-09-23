@@ -24,9 +24,9 @@ def app(qtbot) -> MainWindow:
 
 
 def test_empty_start_app(app: MainWindow) -> None:
-    assert app._tmp_notepads_content == {}
     assert app.notepads_bar.notepads_bar_layout.count() == 1
-    assert app.notepads_bar._notepads_content[0] == ""
+    print(app._mn_manager._content)
+    assert app._mn_manager.size() == 1
 
 
 def test_new_notepad_1(app: MainWindow, qtbot) -> None:
@@ -48,8 +48,8 @@ def test_new_notepad_1(app: MainWindow, qtbot) -> None:
         )
 
     assert app.notepads_bar.notepads_bar_layout.count() == 2
-    assert app.notepads_bar._notepads_content[0] == ""
-    assert app.notepads_bar._notepads_content[1] == ""
+    assert app._mn_manager.get_notepad(0).content == ""
+    assert app._mn_manager.get_notepad(1).content == ""
 
 
 def test_new_notepad_2(app: MainWindow, qtbot) -> None:
@@ -65,7 +65,7 @@ def test_new_notepad_2(app: MainWindow, qtbot) -> None:
     app.notepads_bar._get_file_name = get_file_name_mock
 
     assert app.notepads_bar.notepads_bar_layout.count() == 1
-    assert app.notepads_bar._notepads_content[0] == ""
+    assert app._mn_manager.get_notepad(0).content == ""
 
     app.text_box.insertPlainText("aAa")
 
@@ -75,8 +75,8 @@ def test_new_notepad_2(app: MainWindow, qtbot) -> None:
         )
 
     assert app.notepads_bar.notepads_bar_layout.count() == 2
-    assert app.notepads_bar._notepads_content[0] == "aAa"
-    assert app.notepads_bar._notepads_content[1] == ""
+    assert app._mn_manager.get_notepad(0).content == "aAa"
+    assert app._mn_manager.get_notepad(1).content == ""
 
 
 def test_new_notepad_3(app: MainWindow, qtbot) -> None:
@@ -93,7 +93,7 @@ def test_new_notepad_3(app: MainWindow, qtbot) -> None:
     app.notepads_bar._get_file_name = get_file_name_mock
 
     assert app.notepads_bar.notepads_bar_layout.count() == 1
-    assert app.notepads_bar._notepads_content[0] == ""
+    assert app._mn_manager.get_notepad(0).content == ""
 
     qtbot.mouseClick(
         app.notepads_bar.new_notepad_button,
@@ -108,5 +108,5 @@ def test_new_notepad_3(app: MainWindow, qtbot) -> None:
         )
 
     assert app.notepads_bar.notepads_bar_layout.count() == 2
-    assert app.notepads_bar._notepads_content[0] == ""
-    assert app.notepads_bar._notepads_content[1] == "aAa"
+    assert app._mn_manager.get_notepad(0).content == ""
+    assert app._mn_manager.get_notepad(1).content == "aAa"
