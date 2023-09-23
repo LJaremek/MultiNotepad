@@ -22,6 +22,8 @@ class TestClass:
         app = MainWindow()
         qtbot.addWidget(app)
         yield app
+        app.close()
+        del qtbot
         del app
 
     def test_empty_start_app(self, app: MainWindow) -> None:
