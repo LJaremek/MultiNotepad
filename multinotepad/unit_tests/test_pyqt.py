@@ -16,18 +16,18 @@ import pytest
 from ..run_app import MainWindow
 
 
-@pytest.fixture
-def app(qtbot) -> MainWindow:
-    app = MainWindow()
-    qtbot.addWidget(app)
-    return app
+class TestClass:
+    @pytest.fixture
+    def app(self, qtbot) -> MainWindow:
+        app = MainWindow()
+        qtbot.addWidget(app)
+        return app
 
+    def test_empty_start_app(self, app: MainWindow) -> None:
+        assert app.notepads_bar.notepads_bar_layout.count() == 1
+        assert app._mn_manager.size() == 1
 
-# def test_empty_start_app(app: MainWindow) -> None:
-#     assert app.notepads_bar.notepads_bar_layout.count() == 1
-#     assert app._mn_manager.size() == 1
-
-#     del app
+        del app
 
 
 # def test_new_notepad_1(app: MainWindow, qtbot) -> None:
