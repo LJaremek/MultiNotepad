@@ -21,13 +21,12 @@ class TestClass:
     def app(self, qtbot) -> MainWindow:
         app = MainWindow()
         qtbot.addWidget(app)
-        return app
+        yield app
+        del app
 
     def test_empty_start_app(self, app: MainWindow) -> None:
         assert app.notepads_bar.notepads_bar_layout.count() == 1
         assert app._mn_manager.size() == 1
-
-        del app
 
 
 # def test_new_notepad_1(app: MainWindow, qtbot) -> None:
