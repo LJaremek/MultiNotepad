@@ -27,8 +27,6 @@ def test_empty_start_app(app: MainWindow) -> None:
     assert app.notepads_bar.notepads_bar_layout.count() == 1
     assert app._mn_manager.size() == 1
 
-    del app._mn_manager
-    del app.notepads_bar
     del app
 
 
